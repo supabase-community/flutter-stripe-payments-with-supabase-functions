@@ -1,1 +1,0 @@
-cp 'README.md' "packages/stripe/README.md"
