@@ -1,4 +1,4 @@
-# Expo Stripe Payments with Supabase Functions
+# Flutter Stripe Payments with Supabase Functions
 
 This is a Flutter example app, showing how to process payments with Supabase Functions for authenticated customers.
 
@@ -15,10 +15,3 @@ Supabase Functions are written in TypeScript, run via Deno, and deployed with th
   - run `supabase login sbp_xxxx`
 - Link your project
   - Within your project root run `supabase link --ref your-project-ref`
-
-### Expo app
-
-- `cd app`
-- `yarn`
-- `cp .env.example .env`
-- `yarn start` or `yarn ios` or `yarn android`
