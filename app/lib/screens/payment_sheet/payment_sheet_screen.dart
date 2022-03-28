@@ -47,6 +47,7 @@ class _PaymentSheetScreenState extends State<PaymentSheetScreen> {
   }
 
   Future<Map<String, dynamic>> _createTestPaymentSheet() async {
+    // TODO call supabase functions here
     final url = Uri.parse('$kApiUrl/payment-sheet');
     final response = await http.post(
       url,
