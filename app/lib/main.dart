@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:stripe_example/.env.example.dart';
+import 'package:stripe_example/screens/payment_sheet/payment_sheet_screen.dart';
+import 'package:stripe_example/screens/payment_sheet/payment_sheet_screen_custom_flow.dart';
+import 'package:stripe_example/widgets/platform_icons.dart';
 import 'screens/screens.dart';
 import 'widgets/dismiss_focus_overlay.dart';
 
@@ -45,12 +48,20 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: const Text('Stripe Examples'),
       ),
-      body: ListView(children: [
-        ...ListTile.divideTiles(
-          context: context,
-          tiles: [for (final example in Example.screens) example],
-        ),
-      ]),
+      body: ListView(
+        children: [
+          Example(
+            title: 'Single Step',
+            builder: (context) => PaymentSheetScreen(),
+            platformsSupported: [DevicePlatform.android, DevicePlatform.ios],
+          ),
+          Example(
+            title: 'Custom Flow',
+            builder: (context) => PaymentSheetScreenWithCustomFlow(),
+            platformsSupported: [DevicePlatform.android, DevicePlatform.ios],
+          ),
+        ],
+      ),
     );
   }
 }
