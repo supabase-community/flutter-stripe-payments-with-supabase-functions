@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
+import 'package:functions_dart/functions_dart.dart';
 import 'package:stripe_example/config.dart';
+import 'package:stripe_example/utils.dart';
 import 'package:stripe_example/widgets/loading_button.dart';
 
 class PaymentScreen extends StatefulWidget {
@@ -20,6 +22,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
       ),
       body: SingleChildScrollView(
         child: Stepper(
+          controlsBuilder: (context, details) => Container(),
           currentStep: _step,
           steps: [
             Step(
@@ -81,7 +84,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
         ),
       );
 
-      await Stripe.instance.presentPaymentSheet();
       setState(() {
         _step = 1;
       });
@@ -126,22 +128,21 @@ class _PaymentScreenState extends State<PaymentScreen> {
   }
 
   Future<Map<String, dynamic>> _createTestPaymentSheet() async {
-    // TODO call supabase functions here
-    final url = Uri.parse('$kApiUrl/payment-sheet');
-    // final response = await http.post(
-    //   url,
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //   },
-    //   body: json.encode({
-    //     'a': 'a',
-    //   }),
-    // );
-    // final body = json.decode(response.body);
-    // if (body['error'] != null) {
-    //   throw Exception(body['error']);
-    // }
-    // return body;
-    return {};
+    final urlParts = supabaseUrl.split('.');
+    final url = '${urlParts[0]}.functions.${urlParts[1]}.${urlParts[2]}';
+    final headers = <String, String>{};
+    headers['apiKey'] = supabaseAnonKey;
+    headers['Authorization'] =
+        'Bearer ${supabaseClient.auth.session()!.accessToken}';
+    final functions = FunctionsClient(
+      url: url,
+      headers: headers,
+    );
+    final res = await functions.invoke('payment-sheet');
+    final error = res.error;
+    if (error != null) {
+      throw error;
+    }
+    return res.data as Map<String, dynamic>;
   }
 }
