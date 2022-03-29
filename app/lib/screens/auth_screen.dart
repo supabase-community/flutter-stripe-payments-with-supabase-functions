@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:stripe_example/screens/payment_screen.dart';
+import 'package:stripe_example/utils.dart';
 import 'package:stripe_example/widgets/loading_button.dart';
 
 class AuthScreen extends StatefulWidget {
@@ -40,18 +41,64 @@ class _AuthScreenState extends State<AuthScreen> {
           const SizedBox(height: 18),
           LoadingButton(
             onPressed: () async {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => const PaymentScreen()),
-              );
+              final email = _emailController.text;
+              final password = _passwordController.text;
+              final res = await supabaseClient.auth.signUp(email, password);
+              if (res.error != null) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Error signing up: ${res.error!.message}'),
+                    ),
+                  );
+                }
+                return;
+              }
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Successfully signed up!'),
+                  ),
+                );
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const PaymentScreen(),
+                  ),
+                );
+              }
             },
             text: 'Sign up',
           ),
           const SizedBox(height: 18),
           LoadingButton(
             onPressed: () async {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => const PaymentScreen()),
-              );
+              final email = _emailController.text;
+              final password = _passwordController.text;
+              final res = await supabaseClient.auth
+                  .signIn(email: email, password: password);
+              if (res.error != null) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Error signing in: ${res.error!.message}'),
+                    ),
+                  );
+                }
+                return;
+              }
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Successfully signed in!'),
+                  ),
+                );
+
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const PaymentScreen(),
+                  ),
+                );
+              }
             },
             text: 'Sign in',
           ),
