@@ -15,3 +15,12 @@ Supabase Functions are written in TypeScript, run via Deno, and deployed with th
   - run `supabase login sbp_xxxx`
 - Link your project
   - Within your project root run `supabase link --ref your-project-ref`
+
+## Test Accounts
+
+You can use the following credentials on this app to test out this example:
+
+```
+Email: testr@test.de
+Password: justTesting123
+```

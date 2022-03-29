@@ -13,8 +13,6 @@ dependencies:
   flutter_stripe: ^2.4.0
   functions_dart:
     path: ../../functions-dart
-  http: ^0.13.1
-  stripe_checkout: ^0.1.2
   supabase: ^0.3.0
 
 dev_dependencies:
