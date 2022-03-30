@@ -1,5 +1,5 @@
 name: stripe_example
-description: Demonstrates how to use the stripe plugin.
+description: Demonstrates how to use the Supabase functions to complete Stripe checkout
 version: 1.0.0
 publish_to: 'none'
 
@@ -21,10 +21,3 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-
-  assets:
-    - assets/
-  fonts:
-    - family: OtomanopeeOne
-      fonts:
-        - asset: fonts/OtomanopeeOne.ttf
