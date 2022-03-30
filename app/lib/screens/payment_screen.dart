@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
-import 'package:functions_dart/functions_dart.dart';
+import 'package:functions_client/functions_client.dart';
 import 'package:stripe_example/config.dart';
 import 'package:stripe_example/utils.dart';
 import 'package:stripe_example/widgets/loading_button.dart';
