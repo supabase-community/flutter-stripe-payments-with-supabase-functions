@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
-import 'package:functions_client/functions_client.dart';
-import 'package:stripe_example/config.dart';
 import 'package:stripe_example/utils.dart';
 import 'package:stripe_example/widgets/loading_button.dart';
 
@@ -128,17 +126,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
   }
 
   Future<Map<String, dynamic>> _createTestPaymentSheet() async {
-    final urlParts = supabaseUrl.split('.');
-    final url = '${urlParts[0]}.functions.${urlParts[1]}.${urlParts[2]}';
-    final headers = <String, String>{};
-    headers['apiKey'] = supabaseAnonKey;
-    headers['Authorization'] =
-        'Bearer ${supabaseClient.auth.session()!.accessToken}';
-    final functions = FunctionsClient(
-      url: url,
-      headers: headers,
-    );
-    final res = await functions.invoke('payment-sheet');
+    final res = await supabaseClient.functions.invoke('payment-sheet');
     final error = res.error;
     if (error != null) {
       throw error;

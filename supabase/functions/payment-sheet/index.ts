@@ -1,41 +1,22 @@
-import {
-  serveListener,
-  Handler,
-} from 'https://deno.land/std@0.116.0/http/server.ts';
-
-// esm.sh is used to compile stripe-node to be compatible with ES modules.
-import Stripe from 'https://esm.sh/stripe?target=deno&no-check';
-
+import { serve } from 'https://deno.land/std@0.131.0/http/server.ts';
+import { stripe } from '../_utils/utils.ts';
 // Import Supabase client
-import { createClient } from 'https://cdn.skypack.dev/@supabase/supabase-js@^1.31.2';
-
-const stripe = Stripe(
-  // TODO move to env var
-  'sk_test_51Kfs8gAi5HDX2lYC3f7a7QYIznGO7SOA0z1MrH3hKo7jkDD7jHaocBIInUd8RRkYJpWzvfuFfw0dxqdXmCPJB70O00DKB6amN4',
-  {
-    // This is needed to use the Fetch API rather than relying on the Node http
-    // package.
-    httpClient: Stripe.createFetchHttpClient(),
-    apiVersion: '2020-08-27',
-  }
-);
-
-const server = Deno.listen({ port: 8000 });
-console.log(`HTTP webserver running.  Access it at:  http://localhost:8000/`);
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@^1.33.1';
 
 // This handler will be called for every incoming request.
-const handler: Handler = async (request) => {
+console.log('payment-sheet handler up and running!');
+serve(async (req) => {
+  console.log('Request received', req);
   const supabase = createClient(
-    // Supabase API URL
-    'https://cqhkqitntobmsugnbkjr.supabase.co',
-    // Supabase API ANON KEY
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNxaGtxaXRudG9ibXN1Z25ia2pyIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NDgyMDMxNDQsImV4cCI6MTk2Mzc3OTE0NH0.QmrUf2J_cGvhilFI7DvrX0re4qb_STaQKcOw83P-KH0',
+    // Supabase API URL - env var exported by default when deployed.
+    Deno.env.get('SUPABASE_URL') ?? '',
+    // Supabase API ANON KEY - env var exported by default when deployed.
+    Deno.env.get('SUPABASE_ANON_KEY') ?? '',
     // Create client with Auth context of the user that called the function.
     // This way your row-level-security (RLS) policies are applied.
-    { headers: { Authorization: request.headers.get('Authorization') } }
+    { headers: { Authorization: req.headers.get('Authorization') ?? '' } }
   );
 
-  // @ts-expect-error: deno doenst like that Postgrestfilterbuilder doesn't return a promise
   const { data, error } = await supabase.from('customers').select('*').single();
   console.log(data, error);
   if (error) return new Response(JSON.stringify(error), { status: 200 });
@@ -51,12 +32,11 @@ const handler: Handler = async (request) => {
     customer: customer,
   });
   const res = {
+    stripe_pk: Deno.env.get('STRIPE_PUBLISHABLE_KEY'),
     paymentIntent: paymentIntent.client_secret,
     ephemeralKey: ephemeralKey.secret,
     customer: customer,
   };
 
   return new Response(JSON.stringify(res), { status: 200 });
-};
-
-await serveListener(server, handler);
+});
