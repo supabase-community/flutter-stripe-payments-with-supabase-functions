@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
-import 'package:stripe_example/.env.example.dart';
+import 'package:stripe_example/config.dart';
 import 'package:stripe_example/screens/auth_screen.dart';
 import 'package:stripe_example/widgets/dismiss_focus_overlay.dart';
 
