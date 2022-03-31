@@ -17,9 +17,10 @@ This is a Flutter example app, showing how to process payments with Supabase Fun
 - Set up env vars for Supabase Functions:
   - `cp .env.example .env`
   - Fill in your Stripe API keys from https://stripe.com/docs/development/quickstart#api-keys
-- Set up env vars for the Expo app:
-  - `cp app/.env.example app/.env`
+- Set up env vars for the Flutter app:
+  - open `app/config.dart`
   - Fill in your _public_ Supabase keys from https://app.supabase.io/project/_/settings/api
+  - Fill in your _public_ Stripe keys from https://stripe.com/docs/development/quickstart#api-keys
 
 ### Supabase Functions
 
@@ -58,8 +59,6 @@ Supabase Functions are written in TypeScript, run via Deno, and deployed with th
 
 ## 👁⚡️👁
 
-// TODO add docs links
+\o/ That's it, you can now invoke your Supabase Function via the [`supabase-js`](https://www.npmjs.com/package/@supabase/supabase-js) and [`supabase-dart`](https://pub.dev/packages/supabase) client libraries. (More client libraries coming soon. Check the [supabase-community](https://github.com/supabase-community#client-libraries) org for details).
 
-\o/ That's it, you can now invoke your Supabase Function via the [`supabase-js`]() and [`supabase-dart`]() client libraries. (More client libraries coming soon. Check the [supabase-community](https://github.com/supabase-community#client-libraries) org for details).
-
-For more info on Supabase Functions, check out the [docs]() and the [examples]().
+For more info on Supabase Functions, check out the [docs](https://supabase.com/docs/guides/functions) and the [examples](https://github.com/supabase/supabase/tree/master/examples/edge-functions).

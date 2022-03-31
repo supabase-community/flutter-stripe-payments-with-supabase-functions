@@ -1,6 +1,4 @@
 // Replace these with your own configurations
-const supabaseUrl = 'https://gvkuljvaukfrwmrythfi.supabase.co';
-const supabaseAnonKey =
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd2a3VsanZhdWtmcndtcnl0aGZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NDg1NTA4MjQsImV4cCI6MTk2NDEyNjgyNH0.SJpObtyvXNXiVXFBtNED8K7dry5pnaHN7tswyYGQU00';
-const stripePublishableKey =
-    'pk_test_51Kfs8gAi5HDX2lYCEk2a1c9k1w3VDToYIhk9IdwyCFlPLqilrKZvol8JgQbiAXr222uQjo4nOCehfv3Z8LMGYmRn0025a0amdt';
+const supabaseUrl = 'YOUR_SUPABASE_URL';
+const supabaseAnonKey = 'YOUR_SUPABASE_ANONKEY';
+const stripePublishableKey = 'YOUR_STRIPE_PUBLISHABLE_KEY';
