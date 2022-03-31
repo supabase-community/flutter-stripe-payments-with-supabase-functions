@@ -55,7 +55,6 @@ Supabase Functions are written in TypeScript, run via Deno, and deployed with th
   - You can run `supabase secrets list` to check that it worked and also to see what other env vars are set by default.
 - Deploy the function
   - Within your project root run `supabase functions deploy payment-sheet`
-- In youre [`./app/.env`](./app/.env) file remove the `SUPA_FUNCTION_LOCALHOST` variable and restart your Expo app.
 
 ## 👁⚡️👁
 
