@@ -25,7 +25,7 @@ serve(async (req) => {
       customer: customer,
     });
 
-    // Return the customer details as well as teh Stripe publishable key which we have set in our secrets.
+    // Return the customer details as well as the Stripe publishable key which we have set in our secrets.
     const res = {
       stripe_pk: Deno.env.get("STRIPE_PUBLISHABLE_KEY"),
       paymentIntent: paymentIntent.client_secret,
