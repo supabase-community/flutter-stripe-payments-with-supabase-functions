@@ -3,9 +3,11 @@ import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:stripe_example/config.dart';
 import 'package:stripe_example/screens/auth_screen.dart';
 import 'package:stripe_example/widgets/dismiss_focus_overlay.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Supabase.initialize(url: supabaseUrl, anonKey: supabaseAnonKey);
   Stripe.publishableKey = stripePublishableKey;
   Stripe.merchantIdentifier = 'merchant.flutter.stripe.test';
   Stripe.urlScheme = 'flutterstripe';

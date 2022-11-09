@@ -1,7 +1,6 @@
 import 'dart:convert';
 
-import 'package:stripe_example/config.dart';
-import 'package:supabase/supabase.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 extension PrettyJson on Map<String, dynamic> {
   String toPrettyString() {
@@ -10,4 +9,4 @@ extension PrettyJson on Map<String, dynamic> {
   }
 }
 
-final supabaseClient = SupabaseClient(supabaseUrl, supabaseAnonKey);
+final supabaseClient = Supabase.instance.client;

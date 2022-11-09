@@ -127,10 +127,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
   Future<Map<String, dynamic>> _createTestPaymentSheet() async {
     final res = await supabaseClient.functions.invoke('payment-sheet');
-    final error = res.error;
-    if (error != null) {
-      throw error;
-    }
     return res.data as Map<String, dynamic>;
   }
 }
