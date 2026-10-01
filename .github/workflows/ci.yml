@@ -62,5 +62,5 @@ jobs:
           deno-version: v2.x
       - run: deno fmt --check
       - run: deno lint
-      - run: deno check payment-sheet/index.ts
+      - run: deno check index.ts
         working-directory: supabase/functions/payment-sheet
