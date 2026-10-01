@@ -1,5 +1,5 @@
 name: stripe_payments
-description: Accept payments with Stripe and Supabase Edge Functions.
+description: An example app that accepts payments with Stripe and Supabase Edge Functions.
 publish_to: none
 version: 1.0.0+1
 
