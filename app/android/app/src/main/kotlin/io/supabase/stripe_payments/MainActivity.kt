@@ -1,4 +1,4 @@
-package com.example.stripe_example
+package io.supabase.stripe_payments
 
 import io.flutter.embedding.android.FlutterFragmentActivity
 

@@ -1,129 +1,112 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_stripe/flutter_stripe.dart';
-import 'package:stripe_example/utils.dart';
-import 'package:stripe_example/widgets/loading_button.dart';
+import 'package:flutter_stripe/flutter_stripe.dart' hide Card;
+import 'package:stripe_payments/payment_sheet_data.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class PaymentScreen extends StatefulWidget {
-  const PaymentScreen({Key? key}) : super(key: key);
+  const PaymentScreen({super.key});
 
   @override
   State<PaymentScreen> createState() => _PaymentScreenState();
 }
 
 class _PaymentScreenState extends State<PaymentScreen> {
-  int _step = 0;
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Payment'),
-      ),
-      body: SingleChildScrollView(
-        child: Stepper(
-          controlsBuilder: (context, details) => Container(),
-          currentStep: _step,
-          steps: [
-            Step(
-              title: const Text('Init payment'),
-              content: LoadingButton(
-                onPressed: _initPaymentSheet,
-                text: 'Init payment sheet',
-              ),
-            ),
-            Step(
-              title: const Text('Confirm payment'),
-              content: LoadingButton(
-                onPressed: _confirmPayment,
-                text: 'Pay now',
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+  bool _isLoading = false;
+
+  SupabaseClient get _supabase => Supabase.instance.client;
+
+  Future<PaymentSheetData> _createPaymentSheet() async {
+    final response = await _supabase.functions.invoke('payment-sheet');
+    return PaymentSheetData.fromJson(response.data as Map<String, dynamic>);
   }
 
-  Future<void> _initPaymentSheet() async {
+  Future<void> _checkout() async {
+    setState(() => _isLoading = true);
     try {
-      // 1. create payment intent on the server
-      final data = await _createTestPaymentSheet();
-
-      // create some billingdetails
-      const billingDetails = BillingDetails(
-        email: 'email@stripe.com',
-        phone: '+48888000888',
-        address: Address(
-          city: 'Houston',
-          country: 'US',
-          line1: '1459  Circle Drive',
-          line2: '',
-          state: 'Texas',
-          postalCode: '77063',
-        ),
-      ); // mocked data for tests
-
-      // 2. initialize the payment sheet
+      final data = await _createPaymentSheet();
+      if (!mounted) {
+        return;
+      }
       await Stripe.instance.initPaymentSheet(
         paymentSheetParameters: SetupPaymentSheetParameters(
-          // Main params
-          paymentIntentClientSecret: data['paymentIntent'] as String,
-          merchantDisplayName: 'Flutter Stripe Store Demo',
-          // Customer params
-          customerId: data['customer'] as String,
-          customerEphemeralKeySecret: data['ephemeralKey'] as String,
-          // Extra params
-          applePay: const PaymentSheetApplePay(merchantCountryCode: 'DE'),
-          googlePay: const PaymentSheetGooglePay(merchantCountryCode: 'DE'),
-          style: ThemeMode.dark,
-          billingDetails: billingDetails,
+          merchantDisplayName: 'Supabase Store',
+          paymentIntentClientSecret: data.paymentIntentClientSecret,
+          customerId: data.customerId,
+          customerSessionClientSecret: data.customerSessionClientSecret,
+          applePay: const PaymentSheetApplePay(merchantCountryCode: 'US'),
+          googlePay: const PaymentSheetGooglePay(
+            merchantCountryCode: 'US',
+            currencyCode: 'USD',
+            testEnv: true,
+          ),
+          style: Theme.of(context).brightness == Brightness.dark
+              ? ThemeMode.dark
+              : ThemeMode.light,
         ),
       );
-
-      setState(() {
-        _step = 1;
-      });
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
-      rethrow;
-    }
-  }
-
-  Future<void> _confirmPayment() async {
-    try {
-      // 3. display the payment sheet.
       await Stripe.instance.presentPaymentSheet();
-
-      setState(() {
-        _step = 0;
-      });
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Payment succesfully completed'),
-          ),
-        );
+      _showMessage('Payment completed');
+    } on StripeException catch (error) {
+      if (error.error.code != FailureCode.Canceled) {
+        _showMessage(error.error.localizedMessage ?? 'Payment failed');
       }
-    } on Exception catch (e) {
-      if (e is StripeException) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error from Stripe: ${e.error.localizedMessage}'),
-          ),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Unforeseen error: $e'),
-          ),
-        );
+    } on FunctionException catch (error) {
+      final details = error.details;
+      final reason = details is Map ? details['error'] : details;
+      _showMessage('Could not start the payment: $reason');
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
       }
     }
   }
 
-  Future<Map<String, dynamic>> _createTestPaymentSheet() async {
-    final res = await supabaseClient.functions.invoke('payment-sheet');
-    return res.data as Map<String, dynamic>;
+  void _showMessage(String message) {
+    if (mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final email = _supabase.auth.currentUser?.email;
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Checkout'),
+        actions: [
+          IconButton(
+            tooltip: 'Sign out',
+            icon: const Icon(Icons.logout),
+            onPressed: _supabase.auth.signOut,
+          ),
+        ],
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          if (email != null) Text('Signed in as $email'),
+          const SizedBox(height: 16),
+          const Card(
+            child: ListTile(
+              leading: Icon(Icons.shopping_bag_outlined),
+              title: Text('Test product'),
+              trailing: Text(r'$10.99'),
+            ),
+          ),
+          const SizedBox(height: 24),
+          FilledButton(
+            onPressed: _isLoading ? null : _checkout,
+            child: _isLoading
+                ? const SizedBox.square(
+                    dimension: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Text('Pay'),
+          ),
+        ],
+      ),
+    );
   }
 }

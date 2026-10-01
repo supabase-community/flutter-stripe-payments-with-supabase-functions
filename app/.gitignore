@@ -1,5 +1,4 @@
-# Gradle (wrapper files should be committed)
-# android/.gradle/ and android/build/ are ignored below
+# Miscellaneous
 *.class
 *.log
 *.pyc
@@ -44,3 +43,9 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Widget Preview related
+.widget_preview/
+
+# Local configuration, see config.example.json
+/config.json

@@ -1,6 +1,6 @@
+.DS_Store
 .env
 
 # Supabase
-**/supabase/.branches
-**/supabase/.temp
-**/supabase/.env
+supabase/.branches
+supabase/.temp
