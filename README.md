@@ -1,149 +1,103 @@
-# Flutter Stripe Payments with Supabase Functions
+# Stripe payments in Flutter with Supabase Edge Functions
 
-This is a Flutter example app, showing how to process payments with Supabase Functions for authenticated customers.
+A Flutter app that takes payments with the
+[Stripe Payment Sheet](https://docs.stripe.com/payments/accept-a-payment?platform=react-native&ui=payment-sheet),
+using Supabase Auth to identify the customer and a Supabase Edge Function to
+talk to Stripe.
 
-![Demo gif](./demo.gif)
+![Demo](./demo.gif)
 
-## Setup (Supabase Hosted)
+## How it works
 
-### Create new Supabase project
+1. The user signs in with Supabase Auth.
+2. The app invokes the `payment-sheet` Edge Function with the user's session.
+3. The function looks up the user's Stripe customer in the `customers` table,
+   or creates one, then creates a PaymentIntent and a CustomerSession.
+4. The app presents the Payment Sheet with those secrets. Saved cards, Apple Pay
+   and Google Pay are handled by Stripe.
 
-- [Create a new Supabase project](https://app.supabase.io/)
-- Navigate to the [Auth settings](https://app.supabase.io/project/_/auth/settings) and turn off the toggle next to "Enable email confirmations". (Note: this is only for testing. In production please enable this setting!)
-- Navigate to the [SQL Editor](https://app.supabase.io/project/_/sql) and run the SQL from the [schema.sql](./schema.sql) file.
+The Stripe secret key and the Supabase secret key only ever live in the Edge
+Function. The app only holds publishable keys.
 
-### Deploy Edge Function
+## Requirements
 
-- Head to the **Edge Functions** menu and click "**Deploy a new function**".
-- Copy and paste the code from `./supabase/functions/payment-sheet/index.ts` and paste it into the current selected `index.ts` file opened by default.
-  - Change the directory of the second to first lines:
+- Flutter 3.41 or later
+- The [Supabase CLI](https://supabase.com/docs/guides/local-development/cli/getting-started)
+- A [Stripe account](https://dashboard.stripe.com/register) in test mode
+- Docker, for local development only
 
-``` ts
-import { stripe } from "../_utils/stripe.ts";
-import { createOrRetrieveCustomer } from "../_utils/supabase.ts";
+## Run against a hosted Supabase project
+
+1. Create a project on [supabase.com](https://supabase.com/dashboard), then
+   link this repository to it and create the `customers` table:
+
+   ```sh
+   supabase login
+   supabase link --project-ref <your-project-ref>
+   supabase db push
+   ```
+
+2. Add your Stripe secret key from the
+   [Stripe dashboard](https://dashboard.stripe.com/test/apikeys) and deploy the
+   function:
+
+   ```sh
+   cp supabase/functions/.env.example supabase/functions/.env
+   # Set STRIPE_SECRET_KEY=sk_test_... in supabase/functions/.env
+   supabase secrets set --env-file supabase/functions/.env
+   supabase functions deploy payment-sheet
+   ```
+
+   `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are provided to the function
+   automatically.
+
+3. Configure and run the app:
+
+   ```sh
+   cd app
+   cp config.example.json config.json
+   ```
+
+   Fill in `config.json` with your project URL and publishable key from
+   **Project Settings > API Keys**, and your Stripe publishable key
+   (`pk_test_...`). Never put a secret key in this file, it is compiled into the
+   app.
+
+   ```sh
+   flutter run --dart-define-from-file=config.json
+   ```
+
+New hosted projects require email confirmation, so confirm the sign-up email
+before signing in.
+
+## Run locally
+
+```sh
+supabase start
+cp supabase/functions/.env.example supabase/functions/.env
+# Set STRIPE_SECRET_KEY=sk_test_... in supabase/functions/.env
+supabase functions serve
 ```
 
-to:
+`supabase start` applies the migration and prints the API URL and publishable
+key. Put them in `app/config.json`, using `http://10.0.2.2:54321` as the URL on
+the Android emulator, and run the app as above. Email confirmation is off
+locally, so you can sign in right after creating an account.
 
-``` ts
-import { stripe } from "./stripe.ts";
-import { createOrRetrieveCustomer } from "./supabase.ts";
-```
+Run `supabase stop` when you are done.
 
-This method works because Supabase hosted Edge Functions do not have access to directories outside of the `index.ts` file, therefore it is better to link the `stripe.ts` and `supabase.ts` modules within the same directory.
+## Apple Pay and Google Pay
 
-- Create a new file `db_types.ts` and copy and paste the code from `./supabase/functions/_utils/db_types.ts`
-- Create a new file `stripe.ts` and copy and paste the code from `./supabase/functions/_utils/stripe.ts`
-- Create a new file `supabase.ts` and copy and paste the code from `./supabase/functions/_utils/supabase.ts`
-- Function name: `payment-sheet`
-- Click `Deploy function`
-- Disable `Verify JWT with legacy secret` in the **Details** menu of `payment-sheet` Edge Function.
-  Otherwise you'll receive `401 Unauthorized` error in your Flutter app when you tap the `Init payment sheet` button.
+- **Apple Pay** needs a
+  [merchant identifier](https://docs.stripe.com/apple-pay?platform=react-native#merchantid)
+  registered with Apple and Stripe. Replace
+  `merchant.io.supabase.stripepayments` in
+  `app/ios/Runner/Runner.entitlements` and pass the same value as
+  `STRIPE_MERCHANT_IDENTIFIER` in `config.json`.
+- **Google Pay** runs against the test environment
+  (`PaymentSheetGooglePay(testEnv: true)` in
+  `app/lib/screens/payment_screen.dart`). Set it to `false` when you switch to
+  live keys.
 
-### Setup env vars
-
-- Set up env vars for Supabase Functions:
-  - Go to `Secrets` in the Edge Functions menu, and add:
-
-    |Name|Value|
-    |---|---|
-    |`STRIPE_SECRET_KEY`|`sk_test_XXX`|
-
-    Note: Supabase environment variables are auto populated from `supabase.ts`
-
-    |Name|Value|
-    |---|---|
-    |`SUPABASE_URL`|`...`|
-    |`SUPABASE_ANON_KEY`|`...`|
-    |`SUPABASE_SERVICE_ROLE_KEY`|`...`|
-    |`SUPABASE_DB_URL`|`...`|
-
-- Set up env vars for the Flutter app:
-  - Open `app/lib/config.dart`
-  - Fill in your _public_ Supabase keys from https://app.supabase.io/project/_/settings/api
-  - Fill in your _public_ Stripe keys from https://stripe.com/docs/development/quickstart#api-keys
-
-### Test locally
-
-- Run the Flutter app in a separate terminal window:
-  - `cd app`
-  - `flutter clean`
-  - `flutter pub get`
-  - `flutter run`
-- Make some test moneys 💰🧧💵
-
----
-
-## Setup (Self-Hosted)
-
-### Supabase Functions
-
-Supabase Functions are written in TypeScript, run via Deno, and deployed with the Supabase CLI. Please [download](https://github.com/supabase/cli#install-the-cli) the latest version of the Supabase CLI, or [upgrade](https://github.com/supabase/cli#install-the-cli) it if you have it already installed.
-
-### Setup env vars
-
-- Set up env vars for Supabase Functions:
-  - `cp .env.example .env`
-  - Fill in your Stripe API keys from https://stripe.com/docs/development/quickstart#api-keys
-- Set up env vars for the Flutter app:
-  - Open `app/lib/config.dart`
-  - Fill in your _public_ Supabase keys from the `supabase start` output.
-    |Name|Value|
-    |---|---|
-    |`SUPABASE_URL`|`http://127.0.0.1:54321`|
-    |`SUPABASE_ANON_KEY`|`sb_publishable_XXX`|
-  - Fill in your _public_ Stripe keys from https://stripe.com/docs/development/quickstart#api-keys
-    |Name|Value|
-    |---|---|
-    |`STRIPE_SECRET_KEY`|`sk_test_XXX`|
-
-
-### Develop locally
-
-- Run `supabase start` (make sure your Docker daemon is running.)
-
-### Create a user
-
-``` bash
-curl -X POST http://127.0.0.1:54321/auth/v1/admin/users \
-  -H "apikey: sb_secret_xxx" \
-  -H "Authorization: Bearer sb_secret_xxx" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "user@example.com",
-    "password": "password123",
-    "email_confirm": true
-  }'
-```
-
-### Apply Schema to Local Instance
-
-- Enter into the Supabase local instance via Postgres `psql` and run the SQL from the [schema.sql](./schema.sql) file.
-
-### Run Function as Service
-
-- Run `supabase functions serve --env-file .env payment-sheet`
-  - NOTE: no need to specify `SUPABASE_URL` and `SUPABASE_ANON_KEY` as they are automatically supplied for you from the linked project.
-- Run the Flutter app in a separate terminal window:
-  - `cd app`
-  - `flutter clean`
-  - `flutter pub get`
-  - `flutter run`
-- Make some test moneys 💰🧧💵
-- Stop local development
-  - Kill the "supabase functions serve watcher" (ctrl + c)
-  - Run `supabase stop` to stop the Docker containers.
-
-### Deploy
-
-- Set up your secrets
-  - Run `supabase secrets set --from-stdin < .env` to set the env vars from your `.env` file.
-  - You can run `supabase secrets list` to check that it worked and also to see what other env vars are set by default.
-- Deploy the function
-  - Within your project root run `supabase functions deploy payment-sheet`
-
-## 👁⚡️👁
-
-\o/ That's it, you can now invoke your Supabase Function via the [`supabase-js`](https://www.npmjs.com/package/@supabase/supabase-js) and [`supabase-dart`](https://pub.dev/packages/supabase) client libraries. (More client libraries coming soon. Check the [supabase-community](https://github.com/supabase-community#client-libraries) org for details).
-
-For more info on Supabase Functions, check out the [docs](https://supabase.com/docs/guides/functions) and the [examples](https://github.com/supabase/supabase/tree/master/examples/edge-functions).
+Use the [Stripe test cards](https://docs.stripe.com/testing), such as
+`4242 4242 4242 4242`, to make test payments.
