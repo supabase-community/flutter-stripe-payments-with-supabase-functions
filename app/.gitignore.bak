@@ -1,5 +1,4 @@
-# Gradle (wrapper files should be committed)
-# android/.gradle/ and android/build/ are ignored below
+# Miscellaneous
 *.class
 *.log
 *.pyc

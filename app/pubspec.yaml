@@ -1,22 +1,22 @@
 name: stripe_example
-description: Demonstrates how to use the Supabase functions to complete Stripe checkout
-version: 1.0.0
+description: "Demonstrates how to use the Supabase functions to complete Stripe checkout"
 publish_to: 'none'
+version: 1.0.0+1
 
 environment:
-  sdk: '>=2.15.0 <3.0.0'
-  flutter: '>=2.0.0'
+  sdk: ^3.11.0
 
 dependencies:
   flutter:
     sdk: flutter
-  flutter_stripe: ^2.4.0
-  supabase_flutter: ^1.0.0
+  flutter_stripe: ^12.2.0
+  supabase_flutter: ^2.12.0
+  cupertino_icons: ^1.0.8
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  lint: ^1.8.2
+  flutter_lints: ^6.0.0
 
 flutter:
   uses-material-design: true

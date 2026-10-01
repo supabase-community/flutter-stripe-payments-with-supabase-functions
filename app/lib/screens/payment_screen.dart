@@ -72,13 +72,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
           customerId: data['customer'] as String,
           customerEphemeralKeySecret: data['ephemeralKey'] as String,
           // Extra params
-          applePay: true,
-          googlePay: true,
+          applePay: const PaymentSheetApplePay(merchantCountryCode: 'DE'),
+          googlePay: const PaymentSheetGooglePay(merchantCountryCode: 'DE'),
           style: ThemeMode.dark,
-          primaryButtonColor: Colors.redAccent,
           billingDetails: billingDetails,
-          testEnv: true,
-          merchantCountryCode: 'DE',
         ),
       );
 
