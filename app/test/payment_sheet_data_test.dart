@@ -13,4 +13,11 @@ void main() {
     expect(data.customerId, 'cus_123');
     expect(data.customerSessionClientSecret, 'cuss_secret_789');
   });
+
+  test('rejects a response with missing fields', () {
+    expect(
+      () => PaymentSheetData.fromJson({'paymentIntent': 'pi_123_secret_456'}),
+      throwsFormatException,
+    );
+  });
 }

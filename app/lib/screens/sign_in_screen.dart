@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class SignInScreen extends StatefulWidget {
-  const SignInScreen({super.key});
-
+class const SignInScreen({super.key}) extends StatefulWidget {
   @override
   State<SignInScreen> createState() => _SignInScreenState();
 }
@@ -56,9 +54,8 @@ class _SignInScreenState extends State<SignInScreen> {
 
   void _showMessage(String message) {
     if (mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(message)));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(message)));
     }
   }
 
@@ -69,14 +66,14 @@ class _SignInScreenState extends State<SignInScreen> {
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: const .all(16),
           children: [
             TextFormField(
               controller: _emailController,
               decoration: const InputDecoration(labelText: 'Email'),
-              keyboardType: TextInputType.emailAddress,
+              keyboardType: .emailAddress,
               autofillHints: const [AutofillHints.email],
-              textInputAction: TextInputAction.next,
+              textInputAction: .next,
               onTapOutside: (_) => FocusScope.of(context).unfocus(),
               validator: (value) => value == null || !value.contains('@')
                   ? 'Enter a valid email address'

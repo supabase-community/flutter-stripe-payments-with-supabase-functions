@@ -3,20 +3,18 @@ import 'package:stripe_payments/screens/payment_screen.dart';
 import 'package:stripe_payments/screens/sign_in_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class App extends StatelessWidget {
-  const App({super.key});
-
+class const App({super.key}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Stripe Payments',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF635BFF)),
+        colorScheme: .fromSeed(seedColor: const Color(0xFF635BFF)),
       ),
       darkTheme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
+        colorScheme: .fromSeed(
           seedColor: const Color(0xFF635BFF),
-          brightness: Brightness.dark,
+          brightness: .dark,
         ),
       ),
       home: const AuthGate(),
@@ -24,9 +22,7 @@ class App extends StatelessWidget {
   }
 }
 
-class AuthGate extends StatelessWidget {
-  const AuthGate({super.key});
-
+class const AuthGate({super.key}) extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final auth = Supabase.instance.client.auth;

@@ -1,5 +1,8 @@
 include: package:flutter_lints/flutter.yaml
 
+formatter:
+  trailing_commas: preserve
+
 analyzer:
   exclude:
     - build/**
@@ -14,4 +17,6 @@ linter:
     - prefer_single_quotes
     - require_trailing_commas
     - unawaited_futures
+    - use_declaring_parameters
+    - use_null_aware_elements
     - use_super_parameters

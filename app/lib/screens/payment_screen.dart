@@ -3,9 +3,7 @@ import 'package:flutter_stripe/flutter_stripe.dart' hide Card;
 import 'package:stripe_payments/payment_sheet_data.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class PaymentScreen extends StatefulWidget {
-  const PaymentScreen({super.key});
-
+class const PaymentScreen({super.key}) extends StatefulWidget {
   @override
   State<PaymentScreen> createState() => _PaymentScreenState();
 }
@@ -39,20 +37,23 @@ class _PaymentScreenState extends State<PaymentScreen> {
             currencyCode: 'USD',
             testEnv: true,
           ),
-          style: Theme.of(context).brightness == Brightness.dark
-              ? ThemeMode.dark
-              : ThemeMode.light,
+          style: switch (Theme.of(context).brightness) {
+            .dark => .dark,
+            .light => .light,
+          },
         ),
       );
       await Stripe.instance.presentPaymentSheet();
       _showMessage('Payment completed');
     } on StripeException catch (error) {
-      if (error.error.code != FailureCode.Canceled) {
+      if (error.error.code != .Canceled) {
         _showMessage(error.error.localizedMessage ?? 'Payment failed');
       }
     } on FunctionException catch (error) {
-      final details = error.details;
-      final reason = details is Map ? details['error'] : details;
+      final reason = switch (error.details) {
+        {'error': final String message} => message,
+        final details => '$details',
+      };
       _showMessage('Could not start the payment: $reason');
     } finally {
       if (mounted) {
@@ -63,9 +64,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
   void _showMessage(String message) {
     if (mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(message)));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(message)));
     }
   }
 
@@ -84,7 +84,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
         ],
       ),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const .all(16),
         children: [
           if (email != null) Text('Signed in as $email'),
           const SizedBox(height: 16),
